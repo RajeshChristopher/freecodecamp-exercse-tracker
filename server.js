@@ -101,30 +101,53 @@ app.post("/api/users/:_id/exercises",function(req,res){
 })
 
 app.get("/api/users/:_id/logs",function(req,res){
-  var idParam = req.params._id;
-  var b = []
-  var c = []
-  console.log(idParam);
-  user.findById(idParam,function(err,data){
-    if(err || !data){
-      res.send("Log error")
-    }else{
-      b.push(data.username)
-    }
-    console.log(b);
-  })
+  var idParam = req.params;
+  //console.log(idParam);
+  //var c = []
 
-  exercise.findById(idParam,function(err,data){
-    console.log(data);
-    if(err || ! data){
+  user.find({idParam},function(err,data){
+    //console.log(data);
+    if(err || !data){
+      res.send("Error")
+    }else{
+      exercise.find({idParam},function(err,exerdata){
+    //console.log(exerdata);
+    if(err || ! exerdata){
       res.send("Log data error");
     }else{
-      c.push(data.description);
-      c.push(data.duration);
-      c.push(data.date);
+      console.log(exerdata);
+      for(var i=exerdata.length -1 ; i>=0; i--){
+          //console.log(exerdata[exerdata.length-1])
+        if(exerdata[i].description == undefined || exerdata[i].duration == undefined || exerdata[i].date == undefined){
+          return(res.send("Duaration, date error"));
+        }else{
+          var r = exerdata[i].description;
+        //console.log(r);
+        var s = exerdata[i].duration;
+        //console.log(s);
+        var t = exerdata[i].date.toDateString();
+        console.log(t);
+        return(res.json({
+        username: data.username,
+        count: exerdata.length,
+        _id: req.params._id,
+        log: [{
+          description: r,
+          duration: s,
+          date: t
+        }]
+      })
+        )
+        }
+        
+        
+      }
+      
     }
-    console.log(c)
   })
+    }
+  })
+  
   
 })
 
